@@ -11,13 +11,22 @@
   body {
     background-color: var(--color-bg);
     color: var(--color-fg);
+    font-family: var(--font-dm-sans), sans-serif;
     font-size: 1rem;
+  }
+
+  ::placeholder {
+    color: var(--color-muted);
   }
 }
 
 @layer components {
   .bg-footer {
     background-color: var(--color-fg);
+  }
+
+  .border-fg {
+    border-color: var(--color-fg);
   }
 
   .text-muted {

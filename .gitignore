@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# fixture / mock data
+/app/fixtures/
+/public/fixtures/

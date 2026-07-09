@@ -21,10 +21,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={dmSans.variable}>
-      <body suppressHydrationWarning className="font-[family-name:var(--font-dm-sans)]">
+      <body suppressHydrationWarning>
         <Nav />
         {/* children = the current page. e.g. app/page.tsx for "/", app/results/page.tsx for "/results" */}
-        <main className="min-h-screen">
+        <main>
           {children}
         </main>
         <Footer />
