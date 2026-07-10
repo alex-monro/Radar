@@ -1,7 +1,7 @@
 import Image from "next/image";
 import ScanForm from "./components/ScanForm";
 
-export default function Page() {
+const Page = () => {
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
       <div className="w-full max-w-4xl px-6 flex flex-col gap-6 -mt-16">
@@ -14,4 +14,6 @@ export default function Page() {
       </div>
     </div>
   );
-}
+};
+
+export default Page;

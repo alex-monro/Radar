@@ -4,7 +4,7 @@
 import { Particles, ParticlesProvider, useParticlesProvider } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
 
-function StarParticles() {
+const StarParticles = () => {
   const { loaded } = useParticlesProvider();
 
   if (!loaded) return null;
@@ -26,12 +26,14 @@ function StarParticles() {
       }}
     />
   );
-}
+};
 
-export default function StarField() {
+const StarField = () => {
   return (
     <ParticlesProvider init={loadSlim}>
       <StarParticles />
     </ParticlesProvider>
   );
-}
+};
+
+export default StarField;

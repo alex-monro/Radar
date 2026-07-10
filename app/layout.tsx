@@ -14,11 +14,11 @@ export const metadata: Metadata = {
   description: "Accessibility scanner by Gravity",
 };
 
-export default function RootLayout({
+const RootLayout = ({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) {
+}>) => {
   return (
     <html lang="en" className={dmSans.variable}>
       <body suppressHydrationWarning>
@@ -31,4 +31,6 @@ export default function RootLayout({
       </body>
     </html>
   );
-}
+};
+
+export default RootLayout;
