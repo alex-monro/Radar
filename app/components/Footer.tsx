@@ -1,6 +1,6 @@
 import StarField from "./StarField";
 
-export default function Footer() {
+const Footer = () => {
   return (
     <footer className="relative bg-footer px-8 py-24 overflow-hidden">
       <StarField />
@@ -11,4 +11,6 @@ export default function Footer() {
       </div>
     </footer>
   );
-}
+};
+
+export default Footer;
