@@ -24,9 +24,7 @@ const RootLayout = ({
       <body suppressHydrationWarning>
         <Nav />
         {/* children = the current page. e.g. app/page.tsx for "/", app/results/page.tsx for "/results" */}
-        <main>
-          {children}
-        </main>
+        <main className="px-24 ">{children}</main>
         <Footer />
       </body>
     </html>

@@ -3,17 +3,20 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function ScanForm() {
+const ScanForm = () => {
   const [url, setUrl] = useState("");
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // useRouter is a hook from Next.js Calling it gives you a router object with methods to navigate between pages in code
+
+  // I promise "e" will be this specific shape.
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!url.trim()) return;
-    router.push(`/results?url=${encodeURIComponent(url.trim())}`);
+    router.push(`/results?url=${encodeURIComponent(url).trim()}`);
   };
 
   return (
+    // OnSubmit Passes an "Event  Object" to the function
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
       <label htmlFor="url-input" className="font-medium">
         Enter a website URL
@@ -36,4 +39,6 @@ export default function ScanForm() {
       </div>
     </form>
   );
-}
+};
+
+export default ScanForm;
