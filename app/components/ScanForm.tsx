@@ -12,7 +12,7 @@ const ScanForm = () => {
   // I promise "e" will be this specific shape.
   const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    router.push(`/results?url=${encodeURIComponent(url).trim()}`);
+    router.push(`/results?url=${encodeURIComponent(url.trim())}`);
   };
 
   return (
