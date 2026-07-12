@@ -5,7 +5,7 @@ type Props = {
 const ResultsHeader = ({ url }: Props) => {
   return (
     <>
-      <section className="flex flex-row mt-32 gap-12 justify-between flex-1 border-b border-gray-200">
+      <section className="flex flex-row py-32 gap-12 justify-between flex-1 border-b border-gray-200">
         <div className="flex flex-col gap-4">
           <h1 className="text-5xl font-semibold">Scan Results</h1>
           <a
