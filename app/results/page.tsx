@@ -14,6 +14,7 @@ const ResultsContent = () => {
 
   const [results, setResults] = useState<AxeResults | null>(null);
   const [loading, setLoading] = useState(true);
+  const [summary, setSummary] = useState<string | null>(null);
 
   useEffect(() => {
     if (!url) {
@@ -30,7 +31,6 @@ const ResultsContent = () => {
         // content type is just saying "hey, I'm sending you JSON data, so please treat it as such"
         headers: { "Content-Type": "application/json" },
         // Body is the actual data im sending. if I was doing a GET, this option woudnt be allowed
-        // what
         body: JSON.stringify({ url }),
       });
       // res.json() just means "hey, I expect the data to come back as JSON, so please parse it for me"
@@ -38,6 +38,7 @@ const ResultsContent = () => {
       console.log("data", data);
       setResults(data.results);
       setScreenshot(data.screenshot);
+      setSummary(data.summary);
       setLoading(false);
     };
 
@@ -50,7 +51,7 @@ const ResultsContent = () => {
     </div>
   ) : (
     <section className="min-h-[calc(100vh-4rem)] max-w-7xl mx-auto flex flex-col gap-12 ">
-      <ResultsHeader url={url} />
+      <ResultsHeader url={url} summary={summary} />
       <IssuesList results={results} screenshot={screenshot} />
     </section>
   );
