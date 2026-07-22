@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Image from "next/image";
 import ScanForm from "./components/ScanForm";
 
@@ -19,7 +20,9 @@ const Page = () => {
         <p className="text-2xl text-center">
           Scan a website and surface accessibility issues.
         </p>
-        <ScanForm />
+        <Suspense fallback={null}>
+          <ScanForm />
+        </Suspense>
       </div>
     </div>
   );

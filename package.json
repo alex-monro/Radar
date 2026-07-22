@@ -11,22 +11,27 @@
   "dependencies": {
     "@axe-core/playwright": "^4.12.1",
     "@browserbasehq/sdk": "^2.16.0",
+    "@hyperbrowser/sdk": "^0.91.6",
     "@tsparticles/react": "^4.3.1",
     "@tsparticles/slim": "^4.3.1",
     "@upstash/ratelimit": "^2.0.8",
     "@vercel/functions": "^3.7.5",
     "axe-core": "^4.12.1",
+    "dotenv": "^17.4.2",
     "next": "16.2.10",
     "openai": "^6.46.0",
     "playwright-core": "^1.61.1",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "styled-components": "^6.4.4",
+    "validator": "^13.15.35"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/validator": "^13.12.2",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
     "tailwindcss": "^4",

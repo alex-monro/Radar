@@ -2,10 +2,10 @@
 
 @layer base {
   :root {
-    --color-bg: #FAF9F6;
+    --color-bg: #faf9f6;
     --color-fg: #181717;
     --color-muted: #616060;
-    --color-muted-light: #A8A6A6;
+    --color-muted-light: #a8a6a6;
   }
 
   body {
@@ -39,5 +39,21 @@
 
   .text-on-dark {
     color: var(--color-bg);
+  }
+}
+
+/*
+Source - https://stackoverflow.com/a/60379185
+Posted by Ivan, modified by community. See post 'Timeline' for change history
+Retrieved 2026-07-21, License - CC BY-SA 4.0
+*/
+@layer utilities {
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    font-size: 1rem !important; /* Match your Tailwind size, e.g., 16px */
+    -webkit-text-fill-color: inherit !important;
+    -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
+    transition: background-color 5000s ease-in-out 0s;
   }
 }

@@ -16,11 +16,11 @@ const ResultsHeader = ({ url, summary, score }: Props) => {
             href={url ?? undefined}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-lg text-muted"
+            className="text-lg text-muted hover:text-black transition-colors"
           >
             {url}
           </a>
-          <h2 className="text-xl font-bold">OverView</h2>
+          <h2 className="text-xl font-semibold">AI Overview</h2>
           <p className="max-w-2xl">{summary}</p>
         </div>
         <div className="flex shrink-0 flex-col items-center gap-2 px-26">
