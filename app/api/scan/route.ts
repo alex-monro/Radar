@@ -10,6 +10,12 @@ import { AxeBuilder } from "@axe-core/playwright";
 import { calculateScore } from "@/app/api/scan/lib/calculate-score";
 import { getPageSpeedAccessibilityScore } from "@/app/api/scan/lib/pagespeed-score";
 
+import { z } from "zod";
+
+const requestSchema = z.object({
+  url: z.httpUrl(),
+});
+
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
   // TEMP for dev testing: bumped way up from the real limit (6/hour) so
@@ -33,8 +39,29 @@ export async function POST(request: Request) {
       { status: 429 },
     );
   }
+  // don't know what this is yet. basically, it needs to get defined later down the line.
+  //any is basically a bypass for type checking.
+  // we use unknow because later down the line we define what an aspect of the body requst is
+  // with the schema we built with zod.
+  let body: unknown;
   // request.json() always targets the body of the request. In this case, the body is a JSON object with a single key called "url"
-  const { url } = await request.json();
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json(
+      { error: "Request body must be valid JSON." },
+      { status: 400 },
+    );
+  }
+  //instead of directly detructuring the url from the body, we first validate the body using zod. This is a safer approach because it ensures that the body has the correct structure and types before we try to use it. If the validation fails, we return a 400 error with a message indicating that the request body is invalid.
+  const parseResult = requestSchema.safeParse(body);
+  if (!parseResult.success) {
+    return Response.json(
+      { error: "Invalid request body. Must include a valid URL." },
+      { status: 400 },
+    );
+  }
+  const { url } = parseResult.data;
   const scorePromise = getPageSpeedAccessibilityScore(url);
   const client = new OpenAI();
 

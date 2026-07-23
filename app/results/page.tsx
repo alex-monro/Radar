@@ -7,6 +7,7 @@ import IssuesList from "@/app/components/Issues";
 import type { Finding, PageDimensions } from "@/app/types";
 import type { AxeResults } from "axe-core";
 import Loader from "../components/Loader";
+import ScanComplete from "../components/ScanComplete";
 
 const ResultsContent = () => {
   const searchParams = useSearchParams();
@@ -15,7 +16,12 @@ const ResultsContent = () => {
 
   const [screenshot, setScreenshot] = useState<string | null>(null);
   const [results, setResults] = useState<AxeResults | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Three real states, so one variable rather than two booleans. Two booleans
+  // would allow a fourth, meaningless combination (scanning AND complete at the
+  // same time); this shape makes that impossible instead of merely unlikely.
+  const [phase, setPhase] = useState<"scanning" | "complete" | "results">(
+    "scanning",
+  );
   const [summary, setSummary] = useState<string | null>(null);
   const [score, setScore] = useState<number | null>(null);
   const [findings, setFindings] = useState<Finding[]>([]);
@@ -63,7 +69,9 @@ const ResultsContent = () => {
         setScore((data.score as number) ?? null);
         setFindings((data.findings as Finding[]) ?? []);
         setDimensions((data.dimensions as PageDimensions) ?? null);
-        setLoading(false);
+        // Straight to results on a cache hit. Nothing was actually scanned, so
+        // playing the completion animation would be celebrating a lie.
+        setPhase("results");
         return;
       }
     } catch {
@@ -71,7 +79,7 @@ const ResultsContent = () => {
     }
 
     const runScan = async () => {
-      setLoading(true);
+      setPhase("scanning");
 
       try {
         // fetch() just means "go get this data, and I expect something to come back"
@@ -118,7 +126,7 @@ const ResultsContent = () => {
         setScore(data.score as number);
         setFindings((data.findings as Finding[]) ?? []);
         setDimensions((data.dimensions as PageDimensions) ?? null);
-        setLoading(false);
+        setPhase("complete");
 
         // Cache the result so a reload doesn't trigger another scan. Screenshots
         // are large, so guard against sessionStorage quota errors: if it can't
@@ -151,14 +159,25 @@ const ResultsContent = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [url]);
 
+  // Hold on the completion mark, then reveal the results. 1800ms against a
+  // 1300ms animation on purpose: letting a finished animation rest for a beat
+  // reads as complete, cutting at the exact end reads as an interruption.
+  // The cleanup matters. If the visitor navigates away mid-animation, without it
+  // the timer still fires and sets state on an unmounted component.
+  useEffect(() => {
+    if (phase !== "complete") return;
+    const timer = setTimeout(() => setPhase("results"), 4000);
+    return () => clearTimeout(timer);
+  }, [phase]);
+
   if (!url) {
     return null;
   }
 
-  if (loading) {
+  if (phase !== "results") {
     return (
       <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center ">
-        <Loader />
+        {phase === "scanning" ? <Loader /> : <ScanComplete />}
       </div>
     );
   }
