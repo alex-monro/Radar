@@ -124,8 +124,16 @@ export async function POST(request: Request) {
     // pattern over a CDP connection). AxeBuilder just needs a page.
     const context = browser.contexts()[0];
     const page = await context.newPage();
-    // Go to this specific Url. This is the same as typing a URL into the address bar of your browser and hitting enter.
-    await page.goto(url, { timeout: 30000 });
+    const response = await page.goto(url, { timeout: 30000 });
+    if (response && response.status() >= 400) {
+      return Response.json(
+        {
+          error:
+            "This site doesn't allow automated scans, so Radar couldn't check it. Orbit, our free Chrome extension, runs right in your own browser and can check pages like this one.",
+        },
+        { status: 502 },
+      );
+    }
     await page.waitForTimeout(3000);
 
     // Scroll through the whole page once, then jump back to the top. Without
