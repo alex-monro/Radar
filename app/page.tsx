@@ -2,9 +2,6 @@ import { Suspense } from "react";
 import Image from "next/image";
 import ScanForm from "./components/ScanForm";
 
-// Mobile-first: unprefixed classes are the phone layout, md: restores the
-// original desktop values. md (not lg) is the breakpoint so tablets and up
-// look the same as desktop; only phones get the smaller treatment.
 const Page = () => {
   return (
     <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center">
@@ -29,10 +26,6 @@ const Page = () => {
           <ScanForm />
         </Suspense>
 
-        {/* What you get, not just what it does. Hidden on phones, where the
-            screen is better spent on the scan bar; a row of three on tablet
-            and up. "Fix prompt", not "fixes": Radar produces the prompt, the
-            AI produces the fix. */}
         <ul className="hidden md:flex items-center justify-center gap-8 text-muted">
           <li>Plain-English explanations</li>
           <li>Visual highlights</li>

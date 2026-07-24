@@ -18,18 +18,13 @@ type Props = {
 };
 
 // One issue card, used by both lists on the results page. Element-level
-// cards get a number, a selected state, and an onSelect click; page-level
-// cards render the same content without them.
+// cards get a number, a selected state, and an onSelect click
 const IssueCard = ({ finding, number, selected = false, onSelect }: Props) => {
   const style = impactStyle(finding.impact);
   const places = finding.selectors?.length ?? finding.boxes.length;
   // Null for any rule not in the title table, on purpose. See cardTitle.
   const title = cardTitle(finding);
   const [copied, setCopied] = useState(false);
-
-  // The stepper serves the person exploring their own site one spot at a time.
-  // Whoever they hand this to needs the whole list at once, which is a
-  // different job, so it gets its own control rather than reusing the stepper.
   const copyAll = async () => {
     if (!finding.selectors?.length) return;
     try {
@@ -62,11 +57,7 @@ const IssueCard = ({ finding, number, selected = false, onSelect }: Props) => {
         <span className={`text-xs ${WHO_FIXES_CHIP}`}>
           {whoFixes(finding.id)}
         </span>
-        {/* A pin rather than a warning glyph. The concept here is "this happens
-            in several locations", not "this is urgent": the severity chip owns
-            urgency, and an alarm icon on a six-place minor issue would outshout
-            a one-place critical. Outlined rather than filled so it reads as a
-            property of the issue and not as a third severity signal. */}
+        {/* A pin rather with a number to show how many places the issue occurs */}
         {places > 1 ? (
           <span className="flex items-center gap-1 rounded-full border border-gray-300 px-2 py-0.5 text-xs font-medium text-gray-800">
             <svg
@@ -87,8 +78,7 @@ const IssueCard = ({ finding, number, selected = false, onSelect }: Props) => {
           </span>
         ) : null}
       </div>
-      {/* Title carries the scannable summary, the grade-3 sentence carries the
-          meaning. Rules with no mapped title simply lead with the sentence. */}
+      {/* Card Title*/}
       {title ? <h3 className="font-semibold leading-snug">{title}</h3> : null}
       <p className="leading-relaxed">{plainText(finding)}</p>
     </>
@@ -96,15 +86,6 @@ const IssueCard = ({ finding, number, selected = false, onSelect }: Props) => {
 
   return (
     <li
-      // The hover and focus styling lives on the card rather than the inner
-      // button so the whole card reacts, not just the rectangle the button
-      // happens to occupy. has-[] lets the parent respond to the child's state.
-      // pl-5 only where an accent bar can actually appear. Page-level cards are
-      // never selectable, so on those the extra left padding was dead space
-      // that pushed their text out of line with every other card.
-      // shrink-0 matters once the list has a bounded height. Flex items shrink
-      // to fit by default, so without it the cards compress and clip their own
-      // text instead of overflowing and letting the column scroll.
       className={`relative flex shrink-0 flex-col gap-3 overflow-hidden rounded-lg border p-4 transition-colors has-[button:focus-visible]:ring-2 has-[button:focus-visible]:ring-gray-900 has-[button:focus-visible]:ring-offset-2 ${
         onSelect ? "pl-5" : ""
       } ${
@@ -113,9 +94,6 @@ const IssueCard = ({ finding, number, selected = false, onSelect }: Props) => {
           : "border-gray-200 has-[button:hover]:border-gray-400 has-[button:hover]:bg-gray-50"
       }`}
     >
-      {/* Solid accent bar in the finding's severity colour. A border shift from
-          gray-200 to gray-900 is not perceivable at a glance; this is, and it
-          colour-matches the card to its highlight box on the screenshot. */}
       {selected ? (
         <span
           aria-hidden="true"
@@ -126,8 +104,6 @@ const IssueCard = ({ finding, number, selected = false, onSelect }: Props) => {
         <button
           type="button"
           onClick={onSelect}
-          // The ring is drawn by the parent card, so suppress the default
-          // outline here rather than having two focus indicators.
           className="flex w-full cursor-pointer flex-col gap-2 text-left focus-visible:outline-none"
         >
           {body}
@@ -137,8 +113,6 @@ const IssueCard = ({ finding, number, selected = false, onSelect }: Props) => {
       )}
 
       <div className="flex items-start justify-between gap-3">
-        {/* Collapsed-by-default raw rule name and CSS selector(s), kept quiet
-            so it never competes with the plain-language explanation above. */}
         <details className="min-w-0 text-sm text-gray-600">
           <summary className="cursor-pointer select-none">
             Technical details
@@ -148,19 +122,9 @@ const IssueCard = ({ finding, number, selected = false, onSelect }: Props) => {
               <span className="font-medium">Rule:</span> {finding.help} (
               <code className="text-xs">{finding.id}</code>)
             </p>
-            {/* One selector at a time, never the whole list. A rule like
-                color-contrast can fail forty times, and forty lines of
-                ".col:nth-child(3) > ul > li:nth-child(5) > a" is a wall that
-                helps nobody, including the developer it is written for.
-                Stepping also moves the highlight on the screenshot. */}
+
             {finding.selectors?.length ? (
               <div className="flex flex-col gap-2">
-                {/* No per-spot stepper. Every spot for this issue is already
-                    highlighted on the screenshot at once, so walking them one
-                    at a time added a control, an announcement and a scroll
-                    target without showing anything the visitor could not
-                    already see. Whoever fixes it wants the full list anyway,
-                    which is what the copy button is for. */}
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
