@@ -99,6 +99,9 @@ const ScanForm = () => {
           error ? "border-red-500" : "border-fg"
         }`}
       >
+        {/* Smaller padding and type on phones; md: restores desktop sizing so
+            tablets and up look identical to desktop. min-w-0 lets the input
+            shrink inside the flex row instead of shoving the button off screen. */}
         <input
           id="url-input"
           type="url"
@@ -110,11 +113,11 @@ const ScanForm = () => {
           }}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? "url-input-error" : undefined}
-          className="flex-1 px-6 py-6 bg-transparent outline-none text-xl autofill:!text-xl"
+          className="flex-1 min-w-0 px-4 py-4 text-base md:px-6 md:py-6 md:text-xl bg-transparent outline-none autofill:!text-xl"
         />
         <button
           type="submit"
-          className="bg-footer text-on-dark px-10 py-6 text-xl font-mediums"
+          className="bg-footer text-on-dark px-5 py-4 text-base md:px-10 md:py-6 md:text-xl font-mediums"
         >
           Scan
         </button>

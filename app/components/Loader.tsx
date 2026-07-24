@@ -295,20 +295,26 @@ const StyledWrapper = styled.div`
 `;
 
 const WordsWrapper = styled.div`
+  /* Mobile-first: the base rules are the phone sizing, and the media query
+     below restores the original tablet/desktop values. The rotating phrases
+     are long ("Looking for missing alt text"), so at the desktop font size
+     they wrapped to two lines on a phone; a wrapped word overflows its
+     fixed-height slot and spills into the next one. A smaller base font plus
+     white-space: nowrap keeps every phrase on one line. */
   .card {
     /* color used to softly clip top and bottom of the .words container */
 
     background-color: var(--bg-color);
-    padding: 1rem 2rem;
+    padding: 0.75rem 1.25rem;
     border-radius: 1.25rem;
   }
   .loader {
     color: rgb(124, 124, 124);
     font-family: sans-serif;
     font-weight: 500;
-    font-size: 25px;
+    font-size: 17px;
     box-sizing: content-box;
-    height: 40px;
+    height: 28px;
     padding: 10px 10px;
     display: flex;
     border-radius: 8px;
@@ -335,8 +341,23 @@ const WordsWrapper = styled.div`
     height: 100%;
     padding-left: 6px;
     color: #000000;
+    /* The hard guarantee against the overlap: a phrase can never wrap to a
+       second line and spill out of its fixed-height slot. */
+    white-space: nowrap;
     animation: spin_4991 15s infinite;
   }
+
+  /* Tablet and up: the original desktop sizing, unchanged. */
+  @media (min-width: 768px) {
+    .card {
+      padding: 1rem 2rem;
+    }
+    .loader {
+      font-size: 25px;
+      height: 40px;
+    }
+  }
+
   @keyframes spin_4991 {
     10% {
       transform: translateY(-102%);

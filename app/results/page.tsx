@@ -75,7 +75,7 @@ const ResultsContent = () => {
         return;
       }
     } catch {
-      // Corrupt or unreadable cache: ignore it and fall through to a fresh scan.
+      // ignore it and fall through to a fresh scan.
     }
 
     const runScan = async () => {
@@ -159,14 +159,10 @@ const ResultsContent = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [url]);
 
-  // Hold on the completion mark, then reveal the results. 1800ms against a
-  // 1300ms animation on purpose: letting a finished animation rest for a beat
-  // reads as complete, cutting at the exact end reads as an interruption.
-  // The cleanup matters. If the visitor navigates away mid-animation, without it
-  // the timer still fires and sets state on an unmounted component.
+  // After the scan completes, show the "Scan Complete" animation for a moment
   useEffect(() => {
     if (phase !== "complete") return;
-    const timer = setTimeout(() => setPhase("results"), 4000);
+    const timer = setTimeout(() => setPhase("results"), 3000);
     return () => clearTimeout(timer);
   }, [phase]);
 
@@ -184,8 +180,17 @@ const ResultsContent = () => {
 
   return (
     <section className="min-h-[calc(100vh-4rem)] max-w-7xl mx-auto flex flex-col gap-12 ">
-      <ResultsHeader url={url} summary={summary} score={score} />
+      <ResultsHeader
+        url={url}
+        summary={summary}
+        score={score}
+        // Drives the heavier honesty paragraph. Keyed off the real violation
+        // count rather than a perfect score, since the score comes from
+        // PageSpeed and can read 100 while axe still found something.
+        clean={(results?.violations.length ?? 0) === 0}
+      />
       <IssuesList
+        url={url}
         results={results}
         screenshot={screenshot}
         findings={findings}

@@ -18,6 +18,10 @@ export type Finding = {
   description: string;
   helpUrl: string;
   selectors?: string[];
+  // The offending element's own HTML, index-aligned with selectors. axe
+  // captures this per node already; the fix prompt includes it so an AI can
+  // see the actual markup instead of inferring it from a selector.
+  html?: string[];
   boxes: FindingBox[];
 };
 

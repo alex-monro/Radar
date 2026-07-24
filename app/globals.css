@@ -42,6 +42,32 @@
   }
 }
 
+@layer utilities {
+  /* Thin, quiet scrollbar for the results panes. */
+  .thin-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-muted-light) transparent;
+  }
+
+  .thin-scroll::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .thin-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .thin-scroll::-webkit-scrollbar-thumb {
+    background: var(--color-muted-light);
+    border-radius: 999px;
+  }
+
+  .thin-scroll::-webkit-scrollbar-thumb:hover {
+    background: var(--color-muted);
+  }
+}
+
 /*
 Source - https://stackoverflow.com/a/60379185
 Posted by Ivan, modified by community. See post 'Timeline' for change history
