@@ -19,7 +19,10 @@ const requestSchema = z.object({
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
 
-  limiter: Ratelimit.slidingWindow(20, "24 h"),
+  // 50/day per IP, set generously (July 2026) while traffic is near zero and
+  // the real cost guard is the single concurrent Hyperbrowser session checked
+  // before this limit ever runs. Tighten if usage or API bills pick up.
+  limiter: Ratelimit.slidingWindow(50, "24 h"),
   prefix: "ratelimit:scan",
 });
 
@@ -64,24 +67,18 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
-  // Bug fix: Moved the ip adress check to check AFTER the link is validated, so people dont get rate limited on broken links
-  const ip = ipAddress(request) ?? "unknown";
-  const { success } = await ratelimit.limit(ip);
-
-  if (!success) {
-    return Response.json(
-      { error: "You've hit the daily scan limit. Try again later." },
-      { status: 429 },
-    );
-  }
   const { url } = parseResult.data;
-  const scorePromise = getPageSpeedAccessibilityScore(url);
-  const client = new OpenAI();
 
-  // Start the remote browser session. The free Hyperbrowser plan allows only
-  // ONE concurrent session, so if another scan is already running this throws.
-  // Catch it and return a clear "busy" message the UI can show, instead of a
-  // generic 500. There is no session to clean up if this call itself fails.
+  // Bug fix (audit, July 2026): this used to run AFTER the rate limit check
+  // and the PageSpeed call kickoff. That meant every "scanner is busy" 503,
+  // caused by someone retrying while the single Hyperbrowser session was
+  // still in use, silently burned one of the visitor's daily scans AND fired
+  // a real, billed PageSpeed API call for a scan that never happened. Trying
+  // the session first means a busy rejection costs the visitor nothing and
+  // costs us nothing. The free Hyperbrowser plan allows only ONE concurrent
+  // session, so if another scan is already running this throws. Catch it and
+  // return a clear "busy" message the UI can show, instead of a generic 500.
+  // There is no session to clean up if this call itself fails.
   let session;
   try {
     session = await hb.sessions.create({
@@ -97,6 +94,27 @@ export async function POST(request: Request) {
       { status: 503 },
     );
   }
+
+  // Only now that a session is actually secured does this attempt count
+  // against the visitor's daily limit. If they're over it, release the
+  // session immediately, an already-over-limit visitor shouldn't hold the
+  // single concurrent slot hostage.
+  // Bug fix: Moved the ip adress check to check AFTER the link is validated, so people dont get rate limited on broken links
+  const ip = ipAddress(request) ?? "unknown";
+  const { success } = await ratelimit.limit(ip);
+
+  if (!success) {
+    await hb.sessions.stop(session.id).catch(() => {});
+    return Response.json(
+      { error: "You've hit the daily scan limit. Try again later." },
+      { status: 429 },
+    );
+  }
+
+  // The first real paid call (PageSpeed), now gated behind both the busy
+  // check and the rate limit above. Never throws synchronously: errors are
+  // caught inside and resolve to null.
+  const scorePromise = getPageSpeedAccessibilityScore(url);
 
   // If the visitor closes the tab or navigates away mid-scan, the browser
   // aborts the request. Without this the handler keeps running to completion,
@@ -115,6 +133,10 @@ export async function POST(request: Request) {
   // left open would block every future scan on the one-session plan.
   let browser;
   try {
+    // Constructed INSIDE the try on purpose: if the OpenAI SDK throws here
+    // (missing key, bad config), the finally below still releases the
+    // Hyperbrowser session instead of leaking the single concurrent slot.
+    const client = new OpenAI();
     // connectOverCDP connects Playwright to the remote browser over CDP.
     browser = await chromium.connectOverCDP(session.wsEndpoint);
     // Hyperbrowser already gives the session a context and page, so use the
