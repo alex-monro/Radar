@@ -18,11 +18,8 @@ const requestSchema = z.object({
 
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
-  // 5 scans per day per IP (PRD story 1.7, NFR1/NFR2). Matches the "daily
-  // limit" wording the error responses use. Each scan spins up a remote
-  // browser and makes paid API calls, so this cap is what keeps hosting cost
-  // bounded against an anonymous, un-authenticated endpoint.
-  limiter: Ratelimit.slidingWindow(5, "24 h"),
+
+  limiter: Ratelimit.slidingWindow(20, "24 h"),
   prefix: "ratelimit:scan",
 });
 
@@ -45,15 +42,6 @@ const MAX_SCROLL_STEPS = 50;
 const SCREENSHOT_TIMEOUT_MS = 60000;
 
 export async function POST(request: Request) {
-  const ip = ipAddress(request) ?? "unknown";
-  const { success } = await ratelimit.limit(ip);
-
-  if (!success) {
-    return Response.json(
-      { error: "You've hit the daily scan limit. Try again later." },
-      { status: 429 },
-    );
-  }
   // don't know what this is yet. basically, it needs to get defined later down the line.
   //any is basically a bypass for type checking.
   // we use unknow because later down the line we define what an aspect of the body requst is
@@ -74,6 +62,16 @@ export async function POST(request: Request) {
     return Response.json(
       { error: "Invalid request body. Must include a valid URL." },
       { status: 400 },
+    );
+  }
+  // Bug fix: Moved the ip adress check to check AFTER the link is validated, so people dont get rate limited on broken links
+  const ip = ipAddress(request) ?? "unknown";
+  const { success } = await ratelimit.limit(ip);
+
+  if (!success) {
+    return Response.json(
+      { error: "You've hit the daily scan limit. Try again later." },
+      { status: 429 },
     );
   }
   const { url } = parseResult.data;

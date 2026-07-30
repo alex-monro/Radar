@@ -1,7 +1,11 @@
 "use client";
 
 // Star field using tsparticles — https://github.com/tsparticles/react
-import { Particles, ParticlesProvider, useParticlesProvider } from "@tsparticles/react";
+import {
+  Particles,
+  ParticlesProvider,
+  useParticlesProvider,
+} from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
 
 const StarParticles = () => {

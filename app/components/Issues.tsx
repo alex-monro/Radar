@@ -258,11 +258,14 @@ const Issues = ({ results, screenshot, findings, dimensions, url }: Props) => {
   );
 
   return (
-    <section className="flex flex-col gap-12 pb-24">
+    <div className="flex flex-col gap-12 pb-24">
       {/* Same rhythm as ResultsHeader: gap-2 inside a group, gap-8 between
           groups, so a heading sits tight against what it labels. */}
-      <div className="flex flex-col gap-4">
-        <h2 className="text-3xl font-semibold">
+      <section
+        aria-labelledby="issues-heading"
+        className="flex flex-col gap-4"
+      >
+        <h2 id="issues-heading" className="text-3xl font-semibold">
           Issues <span className="text-3xl text-gray-600">({count})</span>
         </h2>
 
@@ -455,13 +458,19 @@ const Issues = ({ results, screenshot, findings, dimensions, url }: Props) => {
             <ul className="flex flex-col gap-4">{cardList}</ul>
           </>
         )}
-      </div>
+      </section>
 
       {/* Page-level issues: whole-page problems, no screenshot highlight. */}
       {pageFindings.length > 0 ? (
-        <div className="flex flex-col pb-12">
+        <section
+          aria-labelledby="page-level-issues-heading"
+          className="flex flex-col pb-12"
+        >
           <div className="flex flex-col gap-1">
-            <h2 className="text-3xl font-semibold">
+            <h2
+              id="page-level-issues-heading"
+              className="text-3xl font-semibold"
+            >
               Page-level issues{" "}
               <span className="text-3xl text-gray-600">
                 ({pageFindings.length})
@@ -483,7 +492,7 @@ const Issues = ({ results, screenshot, findings, dimensions, url }: Props) => {
               <IssueCard key={`${finding.id}-${i}`} finding={finding} />
             ))}
           </ul>
-        </div>
+        </section>
       ) : null}
 
       {/* Last on the page on purpose: read the findings, then act on them.
@@ -493,12 +502,15 @@ const Issues = ({ results, screenshot, findings, dimensions, url }: Props) => {
           See EXPERIENCE.md D7 and FR6. */}
       {/* scroll-mt clears the sticky nav, which would otherwise cover the
           heading when the disclaimer's anchor link jumps here. */}
-      <div
+      <section
         id="fix-with-ai"
+        aria-labelledby="fix-with-ai-heading"
         className="flex scroll-mt-28 flex-col gap-8 pt-16 border-t border-gray-200"
       >
         <div className="flex flex-col gap-8">
-          <h2 className="text-3xl font-semibold"> Fix-ready prompt</h2>
+          <h2 id="fix-with-ai-heading" className="text-3xl font-semibold">
+            Fix-ready prompt
+          </h2>
           <p>
             Turn these results into a ready-to-paste prompt for Cursor, Claude,
             or any AI coding tool. Every issue, the rule it breaks, exactly
@@ -518,16 +530,21 @@ const Issues = ({ results, screenshot, findings, dimensions, url }: Props) => {
         <span role="status" className="sr-only">
           {briefCopied ? "Brief copied to clipboard" : ""}
         </span>
-      </div>
+      </section>
 
       {/* Orbit cross-link (FR10, Story 1.5). Same section rhythm as the
           Fix-ready prompt, but deliberately one notch quieter per UX-DR13's
           "low-key" rule: a text link, not the primary gradient button, and copy
           aimed at the developer who would actually use a build-time tool rather
           than the business owner reading the report. */}
-      <div className="flex flex-col gap-8 border-t border-gray-200 pt-16">
+      <section
+        aria-labelledby="orbit-heading"
+        className="flex flex-col gap-8 border-t border-gray-200 pt-16"
+      >
         <div className="flex flex-col gap-8">
-          <h2 className="text-3xl font-semibold">Building sites yourself?</h2>
+          <h2 id="orbit-heading" className="text-3xl font-semibold">
+            Building sites yourself?
+          </h2>
           <p>
             Orbit is Radar&apos;s sibling, a Chrome extension that catches
             accessibility issues while you code.
@@ -544,8 +561,8 @@ const Issues = ({ results, screenshot, findings, dimensions, url }: Props) => {
             Get Orbit →
           </a>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   );
 };
 

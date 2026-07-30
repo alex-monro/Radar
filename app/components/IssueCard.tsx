@@ -104,6 +104,8 @@ const IssueCard = ({ finding, number, selected = false, onSelect }: Props) => {
         <button
           type="button"
           onClick={onSelect}
+          aria-label={`Show issue ${number} on the screenshot: ${title ?? finding.help}`}
+          aria-pressed={selected}
           className="flex w-full cursor-pointer flex-col gap-2 text-left focus-visible:outline-none"
         >
           {body}
@@ -150,7 +152,7 @@ const IssueCard = ({ finding, number, selected = false, onSelect }: Props) => {
           href={finding.helpUrl}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Open the documentation for this issue in a new tab"
+          aria-label={`Open documentation for ${title ?? finding.help} in a new tab`}
           title="Learn more"
           className="shrink-0 self-start text-gray-500 transition-colors hover:text-gray-900"
         >

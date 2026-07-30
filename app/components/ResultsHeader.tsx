@@ -12,9 +12,17 @@ type Props = {
 const ResultsHeader = ({ url, summary, score, clean = false }: Props) => {
   return (
     <>
-      <section className="grid grid-cols-1 items-center gap-8 border-b border-gray-200 pb-12 pt-12 text-center lg:grid-cols-[1fr_auto] lg:gap-12 lg:pt-24 lg:text-left">
+      <section
+        aria-labelledby="scan-results-heading"
+        className="grid grid-cols-1 items-center gap-8 border-b border-gray-200 pb-12 pt-12 text-center lg:grid-cols-[1fr_auto] lg:gap-12 lg:pt-24 lg:text-left"
+      >
         <div className="flex flex-col gap-2 lg:col-start-1 lg:row-start-1">
-          <h1 className="text-4xl font-semibold lg:text-5xl">Scan Results</h1>
+          <h1
+            id="scan-results-heading"
+            className="text-4xl font-semibold lg:text-5xl"
+          >
+            Scan Results
+          </h1>
           <a
             href={url ?? undefined}
             target="_blank"
