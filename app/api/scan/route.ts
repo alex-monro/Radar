@@ -69,7 +69,7 @@ export async function POST(request: Request) {
   }
   const { url } = parseResult.data;
 
-  // Bug fix (audit, July 2026): this used to run AFTER the rate limit check
+  // Bug fix: this used to run AFTER the rate limit check
   // and the PageSpeed call kickoff. That meant every "scanner is busy" 503,
   // caused by someone retrying while the single Hyperbrowser session was
   // still in use, silently burned one of the visitor's daily scans AND fired
@@ -95,27 +95,6 @@ export async function POST(request: Request) {
     );
   }
 
-  // Only now that a session is actually secured does this attempt count
-  // against the visitor's daily limit. If they're over it, release the
-  // session immediately, an already-over-limit visitor shouldn't hold the
-  // single concurrent slot hostage.
-  // Bug fix: Moved the ip adress check to check AFTER the link is validated, so people dont get rate limited on broken links
-  const ip = ipAddress(request) ?? "unknown";
-  const { success } = await ratelimit.limit(ip);
-
-  if (!success) {
-    await hb.sessions.stop(session.id).catch(() => {});
-    return Response.json(
-      { error: "You've hit the daily scan limit. Try again later." },
-      { status: 429 },
-    );
-  }
-
-  // The first real paid call (PageSpeed), now gated behind both the busy
-  // check and the rate limit above. Never throws synchronously: errors are
-  // caught inside and resolve to null.
-  const scorePromise = getPageSpeedAccessibilityScore(url);
-
   // If the visitor closes the tab or navigates away mid-scan, the browser
   // aborts the request. Without this the handler keeps running to completion,
   // holding the single Hyperbrowser session for the full scan and blocking the
@@ -123,16 +102,50 @@ export async function POST(request: Request) {
   // request aborts frees the slot immediately; it also drops the CDP
   // connection, so the in-flight Playwright call rejects and unwinds cleanly
   // through the catch/finally below.
+  //
+  // Declared out here rather than inside the try so the finally can still
+  // remove it.
   const onAbort = () => {
     hb.sessions.stop(session.id).catch(() => {});
   };
-  request.signal.addEventListener("abort", onAbort);
 
   // browser is declared here but connected INSIDE the try below, so that if the
   // connection fails the finally still runs and releases the session. A session
   // left open would block every future scan on the one-session plan.
   let browser;
+
+  // Bug fix: everything from here down used to sit between sessions.create()
+  // and this try, with nothing to clean up after it. The rate limit check is a
+  // live network call to Upstash, so when Upstash was unreachable it threw,
+  // the handler exited with a 500, and the session was never stopped. On the
+  // one-session plan that orphan held the only slot, so every later scan got
+  // "the scanner is busy" until Hyperbrowser's idle timeout reclaimed it. The
+  // service appeared to fix itself, which is what made it hard to place.
+  // Anything that throws after a session exists now unwinds through the
+  // finally.
   try {
+    // Only now that a session is actually secured does this attempt count
+    // against the visitor's daily limit. An already-over-limit visitor
+    // shouldn't hold the single concurrent slot hostage, and the finally
+    // releases it on the way out.
+    // Bug fix: Moved the ip adress check to check AFTER the link is validated, so people dont get rate limited on broken links
+    const ip = ipAddress(request) ?? "unknown";
+    const { success } = await ratelimit.limit(ip);
+
+    if (!success) {
+      return Response.json(
+        { error: "You've hit the daily scan limit. Try again later." },
+        { status: 429 },
+      );
+    }
+
+    // The first real paid call (PageSpeed), now gated behind both the busy
+    // check and the rate limit above. Never throws synchronously: errors are
+    // caught inside and resolve to null.
+    const scorePromise = getPageSpeedAccessibilityScore(url);
+
+    request.signal.addEventListener("abort", onAbort);
+
     // Constructed INSIDE the try on purpose: if the OpenAI SDK throws here
     // (missing key, bad config), the finally below still releases the
     // Hyperbrowser session instead of leaking the single concurrent slot.
