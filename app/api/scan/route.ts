@@ -21,12 +21,20 @@ const requestSchema = z.object({
   url: z.httpUrl(),
 });
 
+// Local dev can run without Upstash. Production never skips: a missing key
+// there should fail loudly, not quietly turn off the limit.
+const skipRateLimit =
+  process.env.NODE_ENV !== "production" &&
+  !(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
+
 // 50/day per IP. Generous while traffic is low; the one-session limit is the real cost guard.
-const ratelimit = new Ratelimit({
-  redis: Redis.fromEnv(),
-  limiter: Ratelimit.slidingWindow(50, "24 h"),
-  prefix: "ratelimit:scan",
-});
+const ratelimit = skipRateLimit
+  ? null
+  : new Ratelimit({
+      redis: Redis.fromEnv(),
+      limiter: Ratelimit.slidingWindow(50, "24 h"),
+      prefix: "ratelimit:scan",
+    });
 
 // A full scan can run past Vercel's default 60s limit.
 export const maxDuration = 300;
@@ -85,14 +93,16 @@ export async function POST(request: Request) {
 
   // Everything after the session lives inside this try, so the finally always releases it.
   try {
-    const ip = ipAddress(request) ?? "unknown";
-    const { success } = await ratelimit.limit(ip);
+    if (ratelimit) {
+      const ip = ipAddress(request) ?? "unknown";
+      const { success } = await ratelimit.limit(ip);
 
-    if (!success) {
-      return Response.json(
-        { error: "You've hit the daily scan limit. Try again later." },
-        { status: 429 },
-      );
+      if (!success) {
+        return Response.json(
+          { error: "You've hit the daily scan limit. Try again later." },
+          { status: 429 },
+        );
+      }
     }
 
     // Started now, awaited at the end. Resolves to null on failure, never throws.

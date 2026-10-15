@@ -68,7 +68,7 @@ Copy `.env.example` to `.env.local` and fill in your keys:
 cp .env.example .env.local
 ```
 
-Hyperbrowser, OpenAI and both Upstash values are required. `PAGESPEED_API_KEY` is optional. Without it the Lighthouse score is skipped and my own score still returns.
+Hyperbrowser and OpenAI are required. The Upstash values are optional locally: without them the dev server skips rate limiting. `PAGESPEED_API_KEY` is optional. Without it the Lighthouse score is skipped and my own score still returns.
 
 ```bash
 npm run dev

@@ -22,8 +22,9 @@ browser), OpenAI (summary), Upstash Redis (rate limit), Google PageSpeed (score)
 ## Setup
 
 1. `npm install`
-2. Copy `.env.example` to `.env.local` and fill in your own keys. Hyperbrowser,
-   OpenAI and both Upstash values are required, or scans return 500.
+2. Copy `.env.example` to `.env.local` and fill in your own keys. Hyperbrowser
+   and OpenAI are required, or scans return 500. Upstash is optional locally:
+   without it `next dev` skips the rate limit (production never skips).
    `PAGESPEED_API_KEY` is optional: without it `calculateScore` is used. Never
    commit `.env.local`; `.gitignore` ignores every `.env*` except the example.
 3. `npm run dev`, then before any commit: `npx tsc --noEmit` and `npm run lint`.
@@ -95,6 +96,7 @@ Scan flow in `app/api/scan/route.ts`:
 1. Parse JSON and validate `url` with Zod (`z.httpUrl()`). 400 on failure.
 2. `createSession()` (Hyperbrowser). Retryable failure → 503 "busy", else 500.
 3. Upstash sliding-window rate limit, 50 per IP per 24h. 429 when exceeded.
+   Skipped only in non-production with no Upstash keys.
 4. Start the PageSpeed score in the background.
 5. `connectBrowser` → `openUrl` (502 if the site refuses automated visits) →
    `scrollAndMeasure` → `captureScreenshot` → `runAxe` → `buildFindings` →
