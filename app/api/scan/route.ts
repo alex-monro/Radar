@@ -2,18 +2,18 @@ import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 import { ipAddress } from "@vercel/functions";
 
-import { calculateScore } from "@/app/api/scan/lib/calculate-score";
-import { getPageSpeedAccessibilityScore } from "@/app/api/scan/lib/pagespeed-score";
+import { calculateScore } from "@/app/api/scan/pipeline/calculate-score";
+import { getPageSpeedAccessibilityScore } from "@/app/api/scan/pipeline/pagespeed-score";
 import {
   connectBrowser,
   createSession,
   isRetryable,
   stopSession,
-} from "@/app/api/scan/lib/session";
-import { openUrl, scrollAndMeasure } from "@/app/api/scan/lib/prepare-page";
-import { captureScreenshot } from "@/app/api/scan/lib/capture-screenshot";
-import { buildFindings, runAxe } from "@/app/api/scan/lib/findings";
-import { summarize } from "@/app/api/scan/lib/summarize";
+} from "@/app/api/scan/pipeline/session";
+import { openUrl, scrollAndMeasure } from "@/app/api/scan/pipeline/prepare-page";
+import { captureScreenshot } from "@/app/api/scan/pipeline/capture-screenshot";
+import { buildFindings, runAxe } from "@/app/api/scan/pipeline/findings";
+import { summarize } from "@/app/api/scan/pipeline/summarize";
 
 import { z } from "zod";
 

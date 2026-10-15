@@ -3,6 +3,7 @@ import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import Nav from "./components/Nav";
 import Footer from "./components/Footer";
+import Providers from "./providers";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -22,10 +23,13 @@ const RootLayout = ({
   return (
     <html lang="en" className={dmSans.variable}>
       <body suppressHydrationWarning>
-        <Nav />
-        {/* children = the current page. e.g. app/page.tsx for "/", app/results/page.tsx for "/results" */}
-        <main className="px-8 md:px-12 lg:px-24 ">{children}</main>
-        <Footer />
+        <Providers>
+          <Nav />
+          {/* children = the current page. e.g. app/page.tsx for "/", app/results/page.tsx for "/results" */}
+          <main className="px-8 md:px-12 lg:px-24 ">{children}</main>
+
+          <Footer />
+        </Providers>
       </body>
     </html>
   );

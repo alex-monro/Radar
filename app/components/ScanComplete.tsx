@@ -13,7 +13,9 @@ import styled from "styled-components";
 // loader's own rings already use: set the dash to the length of the path so the
 // whole path is one dash, then animate the offset to 0 to slide it into view.
 
-const ScanComplete = () => {
+// onDone fires when the checkmark finishes drawing, so the results page can
+// swap in without guessing at a duration.
+const ScanComplete = ({ onDone }: { onDone: () => void }) => {
   return (
     <div className="flex flex-col items-center gap-8">
       <StyledWrapper>
@@ -41,6 +43,7 @@ const ScanComplete = () => {
             fill="none"
             d="M78 122L108 152L166 92"
             className="sc__check"
+            onAnimationEnd={onDone}
           />
         </svg>
       </StyledWrapper>
@@ -92,13 +95,25 @@ const StyledWrapper = styled.div`
     }
   }
 
+  /* Holds still, but still fires animationend so onDone runs. */
+  @keyframes scHold {
+    from,
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
   /* Reduced motion still gets the confirmation, it just arrives already drawn.
-     Suppress the movement, never the message. */
+     Suppress the movement, never the message. The check keeps a motionless
+     animation of the same length, so the hand-off to results still happens. */
   @media (prefers-reduced-motion: reduce) {
-    .sc__ring,
-    .sc__check {
+    .sc__ring {
       animation: none;
       stroke-dashoffset: 0;
+    }
+    .sc__check {
+      stroke-dashoffset: 0;
+      animation: scHold 1.3s forwards;
     }
   }
 `;

@@ -1,6 +1,8 @@
 // Shared shapes for scan results. One source of truth: the results page,
 // the Issues component, and the API all describe a finding the same way.
 
+import type { AxeResults } from "axe-core";
+
 // Where an issue sits on the screenshot, in page pixels.
 export type FindingBox = {
   x: number;
@@ -29,4 +31,14 @@ export type Finding = {
 export type PageDimensions = {
   width: number;
   height: number;
+};
+
+// What POST /api/scan sends back on success.
+export type ScanResponse = {
+  results: AxeResults;
+  screenshot: string | null;
+  summary: string;
+  score: number;
+  findings: Finding[];
+  dimensions: PageDimensions;
 };

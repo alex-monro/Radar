@@ -12,6 +12,7 @@
     "@axe-core/playwright": "^4.12.1",
     "@browserbasehq/sdk": "^2.16.0",
     "@hyperbrowser/sdk": "^0.91.6",
+    "@tanstack/react-query": "^5.104.2",
     "@tsparticles/react": "4.3.2",
     "@tsparticles/slim": "4.3.2",
     "@upstash/ratelimit": "^2.0.8",
