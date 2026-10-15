@@ -22,8 +22,10 @@ browser), OpenAI (summary), Upstash Redis (rate limit), Google PageSpeed (score)
 ## Setup
 
 1. `npm install`
-2. Copy `.env.example` to `.env.local` and fill in your own keys. Never commit
-   `.env.local`; `.gitignore` ignores every `.env*` except the example.
+2. Copy `.env.example` to `.env.local` and fill in your own keys. Hyperbrowser,
+   OpenAI and both Upstash values are required, or scans return 500.
+   `PAGESPEED_API_KEY` is optional: without it `calculateScore` is used. Never
+   commit `.env.local`; `.gitignore` ignores every `.env*` except the example.
 3. `npm run dev`, then before any commit: `npx tsc --noEmit` and `npm run lint`.
 
 ## Rules
