@@ -9,6 +9,8 @@ jobs:
   check: # one job, named "check"
     runs-on: ubuntu-latest # the machine for this job
     timeout-minutes: 10 # stop it if it gets stuck
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v7 # download the code
       - uses: actions/setup-node@v7 # install Node
