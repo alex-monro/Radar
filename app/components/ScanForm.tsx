@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import isURL from "validator/lib/isURL";
+import Button from "@/app/components/Button";
 
 // useRouter is a hook from Next.js Calling it gives you a router object with methods to navigate between pages in code
 
@@ -115,12 +116,9 @@ const ScanForm = () => {
           aria-describedby={error ? "url-input-error" : undefined}
           className="flex-1 min-w-0 px-4 py-4 text-base md:px-6 md:py-6 md:text-xl bg-transparent outline-none autofill:!text-xl"
         />
-        <button
-          type="submit"
-          className="bg-footer text-on-dark px-5 py-4 text-base md:px-10 md:py-6 md:text-xl font-mediums"
-        >
+        <Button type="submit" variant="primary" size="large">
           Scan
-        </button>
+        </Button>
       </div>
       {error && (
         <p id="url-input-error" role="alert" className="text-red-600 text-sm">
