@@ -1,5 +1,5 @@
 "use client";
-
+import Button from "@/app/components/Button";
 import { useState } from "react";
 import type { Finding } from "@/app/types";
 import {
@@ -128,14 +128,15 @@ const IssueCard = ({ finding, number, selected = false, onSelect }: Props) => {
             {finding.selectors?.length ? (
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2">
-                  <button
+                  <Button
                     type="button"
                     onClick={copyAll}
-                    className="cursor-pointer self-start rounded border border-gray-300 px-2 py-0.5 text-xs hover:bg-gray-50"
+                    variant="outline"
+                    size="small"
                   >
                     Copy all {finding.selectors.length}{" "}
                     {finding.selectors.length === 1 ? "spot" : "spots"}
-                  </button>
+                  </Button>
                   {/* Polite, so the confirmation is announced rather than being
                       a purely visual state change that a screen reader misses. */}
                   <span aria-live="polite" className="text-xs text-muted">
