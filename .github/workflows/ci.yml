@@ -1,0 +1,20 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check: # one job, named "check"
+    runs-on: ubuntu-latest # the machine for this job
+    timeout-minutes: 10 # stop it if it gets stuck
+    steps:
+      - uses: actions/checkout@v7 # download the code
+      - uses: actions/setup-node@v7 # install Node
+        with:
+          node-version: 24
+          cache: "npm"
+      - run: npm ci # install packages
+      - run: npm run lint # the lint check
+      - run: npx tsc --noEmit # the TypeScript check

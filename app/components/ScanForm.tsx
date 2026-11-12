@@ -37,26 +37,20 @@ const normalizeUrl = (value: string): string | null => {
 };
 
 const ScanForm = () => {
-  const [url, setUrl] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const [url, setUrl] = useState(searchParams.get("url") || "");
+  const [error, setError] = useState<string | null>(
+    searchParams.get("error") || null,
+  );
 
   // Picks up an error message handed back from a failed scan on the results
   // page (it redirects here rather than showing a dead-end "try again" on
   // its own loading screen). Runs once on mount, then clears the query
   // string so refreshing the page doesn't keep re-showing the same error.
   useEffect(() => {
-    const incomingError = searchParams.get("error");
-    const incomingUrl = searchParams.get("url");
-
-    if (incomingError) {
-      setError(incomingError);
-    }
-    if (incomingUrl) {
-      setUrl(incomingUrl);
-    }
-    if (incomingError || incomingUrl) {
+    if (searchParams.get("error") || searchParams.get("url")) {
       router.replace("/");
     }
     // Only ever meant to run once, off the URL the page loaded with.
