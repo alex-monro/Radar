@@ -57,8 +57,30 @@ export async function POST(request: Request) {
     );
   }
   const { url } = parseResult.data;
+  const ip = ipAddress(request) ?? "unknown";
 
-  // Session first: a "busy" rejection must not spend a rate-limit count or a PageSpeed call.
+  // Look, don't spend: turn away visitors already over the limit before paying
+  // for a browser session. The count itself is spent after the session starts.
+  if (ratelimit) {
+    let remaining;
+    try {
+      ({ remaining } = await ratelimit.getRemaining(ip));
+    } catch (err) {
+      console.error("Rate limit check failed:", err);
+      return Response.json(
+        { error: "The scanner is unavailable right now. Please try again later." },
+        { status: 500 },
+      );
+    }
+    if (remaining <= 0) {
+      return Response.json(
+        { error: "You've hit the daily scan limit. Try again later." },
+        { status: 429 },
+      );
+    }
+  }
+
+  // Session before spending the count: a "busy" rejection must not use up a scan or a PageSpeed call.
   let session;
   try {
     session = await createSession();
@@ -93,8 +115,8 @@ export async function POST(request: Request) {
 
   // Everything after the session lives inside this try, so the finally always releases it.
   try {
+    // Spend the count now that the scan is really starting.
     if (ratelimit) {
-      const ip = ipAddress(request) ?? "unknown";
       const { success } = await ratelimit.limit(ip);
 
       if (!success) {

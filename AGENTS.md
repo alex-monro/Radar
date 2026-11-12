@@ -94,14 +94,15 @@ app/
 Scan flow in `app/api/scan/route.ts`:
 
 1. Parse JSON and validate `url` with Zod (`z.httpUrl()`). 400 on failure.
-2. `createSession()` (Hyperbrowser). Retryable failure → 503 "busy", else 500.
-3. Upstash sliding-window rate limit, 50 per IP per 24h. 429 when exceeded.
-   Skipped only in non-production with no Upstash keys.
-4. Start the PageSpeed score in the background.
-5. `connectBrowser` → `openUrl` (502 if the site refuses automated visits) →
+2. Rate-limit look: `getRemaining(ip)` checks without spending. 429 if none left.
+3. `createSession()` (Hyperbrowser). Retryable failure → 503 "busy", else 500.
+4. Rate-limit spend: `limit(ip)`, Upstash sliding window, 50 per IP per 24h.
+   Both rate-limit steps are skipped only in non-production with no Upstash keys.
+5. Start the PageSpeed score in the background.
+6. `connectBrowser` → `openUrl` (502 if the site refuses automated visits) →
    `scrollAndMeasure` → `captureScreenshot` → `runAxe` → `buildFindings` →
    `summarize` → score (PageSpeed, else `calculateScore`).
-6. `finally`: close the browser, stop the session.
+7. `finally`: close the browser, stop the session.
 
 `maxDuration` is 300s. Client flow: `ScanForm` validates with `validator`'s
 `isURL` and pushes `/results?url=…`; the results page runs the query, keyed
